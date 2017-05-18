@@ -1,0 +1,10 @@
+{
+  "name": "renfe_refund_tickets",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Guillermo Guerrero <wolf.fox1985@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "phantomjs": "^2.1.7"
+  }
+}
