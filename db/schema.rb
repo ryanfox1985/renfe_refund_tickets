@@ -19,6 +19,7 @@ ActiveRecord::Schema.define(version: 20170517214023) do
     t.string "destination"
     t.date "departure_date"
     t.datetime "refund_at"
+    t.boolean "refund_ok", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["pnr", "ticket_number"], name: "index_travels_on_pnr_and_ticket_number", unique: true

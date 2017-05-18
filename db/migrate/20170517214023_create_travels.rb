@@ -7,6 +7,7 @@ class CreateTravels < ActiveRecord::Migration[5.1]
       t.string :destination
       t.date :departure_date
       t.datetime :refund_at, default: nil
+      t.boolean :refund_ok, default: false
 
       t.timestamps
       t.index [:pnr, :ticket_number], unique: true

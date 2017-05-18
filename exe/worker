@@ -2,4 +2,5 @@
 
 require 'renfe_refund_tickets'
 
-RenfeRefundTickets.main
+RenfeRefundTickets.pull_new_tickets
+RenfeRefundTickets.refund_tickets

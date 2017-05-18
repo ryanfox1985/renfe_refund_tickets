@@ -10,6 +10,7 @@
 /tmp/
 /db/*.sqlite3
 /node_modules
+/log/*.log
 
 # rspec failure tracking
 .rspec_status
