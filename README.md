@@ -6,23 +6,14 @@ TODO: Delete this and the text above, and describe your gem
 
 ## Installation
 
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'renfe_refund_tickets'
-```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
+Install it yourself as:
 
     $ gem install renfe_refund_tickets
 
 ## Usage
 
-TODO: Write usage instructions here
+To usage call to:
+    $ renfe_refund_tickets
 
 ## Development
 
@@ -38,4 +29,3 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/[USERN
 ## License
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
-
