@@ -28,10 +28,10 @@ module RenfeRefundTickets
       Capybara::Session.new(:poltergeist)
     end
 
-    def login_to_renfe(browser)
+    def login_to_renfe(browser, user = ENV['RENFE_USER'], password = ENV['RENFE_PASSWORD'])
       browser.visit "https://venta.renfe.com/vol/login.do?Idioma=es&Pais=ES&inirenfe=SI"
-      browser.fill_in 'txtoUsuario', with: ENV['RENFE_USER']
-      browser.fill_in 'password', with: ENV['RENFE_PASSWORD']
+      browser.fill_in 'txtoUsuario', with: user
+      browser.fill_in 'password', with: password
       browser.click_link('Entrar')
     rescue Exception => e
       RenfeRefundTickets.logger_exception(e)
