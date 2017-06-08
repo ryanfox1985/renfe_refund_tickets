@@ -5,6 +5,8 @@ module RenfeRefundTickets
   class TicketCreator
     include RenfeRefundTickets::Concerns::HasBrowser
 
+    MY_TICKETS_LIST_URL = 'https://venta.renfe.com/vol/misCompras.do'
+
     def pull
       RenfeRefundTickets.connect_database
       RenfeRefundTickets.login_to_renfe(@browser)
@@ -40,7 +42,7 @@ module RenfeRefundTickets
       travels = []
 
       begin
-        @browser.visit 'https://venta.renfe.com/vol/misCompras.do'
+        RenfeRefundTickets.visit(@browser, MY_TICKETS_LIST_URL)
 
         pnrs = @browser.all('input[name="localizador"]').map(&:value)
         origins = @browser.all('td[headers="Origen"]').map(&:text)
@@ -64,7 +66,7 @@ module RenfeRefundTickets
 
       raw_complete_travels = travels.map do |travel|
         begin
-          @browser.visit 'https://venta.renfe.com/vol/misCompras.do'
+          RenfeRefundTickets.visit(@browser, MY_TICKETS_LIST_URL)
 
           @browser.find("input[value=\"#{travel[:pnr]}\"]").click
           @browser.click_link(:Consultar)

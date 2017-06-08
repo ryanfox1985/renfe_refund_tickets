@@ -32,9 +32,12 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'poltergeist'
   spec.add_dependency 'capybara'
+  spec.add_dependency "chromedriver-helper"
+  spec.add_dependency "selenium-webdriver"
   spec.add_dependency 'standalone_migrations'
   spec.add_dependency 'sqlite3'
   spec.add_dependency 'activerecord'
+  spec.add_development_dependency "pry"
   spec.add_development_dependency "bundler", "~> 1.14"
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rspec", "~> 3.0"

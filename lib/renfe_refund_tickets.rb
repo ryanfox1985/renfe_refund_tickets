@@ -19,17 +19,37 @@ module RenfeRefundTickets
       RenfeRefundTickets.logger.error("[TicketCreator] " + e.message + e.backtrace[0..5].join("\n"))
     end
 
-    def initialize_capybara
+    def use_phantom()
       Capybara.register_driver :poltergeist do |app|
-        Capybara::Poltergeist::Driver.new(app, js_errors: true, timeout: 60)
+        Capybara::Poltergeist::Driver.new(app, js_errors: false, timeout: 60)
       end
 
       Capybara.javascript_driver = :poltergeist
       Capybara::Session.new(:poltergeist)
     end
 
+    def use_selenium()
+      Capybara.register_driver :selenium do |app|
+        Capybara::Selenium::Driver.new(app, browser: :chrome)
+      end
+
+      Capybara.javascript_driver = :chrome
+
+      Capybara.configure do |config|
+        config.default_max_wait_time = 10 # seconds
+        config.default_driver        = :selenium
+      end
+
+      Capybara::Session.new(:selenium)
+    end
+
+    def initialize_capybara(driver = ENV['RENFE_DRIVER'])
+      return use_phantom if !driver || driver.to_s == 'phantom' 
+      use_selenium
+    end
+
     def login_to_renfe(browser, user = ENV['RENFE_USER'], password = ENV['RENFE_PASSWORD'])
-      browser.visit "https://venta.renfe.com/vol/login.do?Idioma=es&Pais=ES&inirenfe=SI"
+      visit(browser, 'https://venta.renfe.com/vol/login.do?Idioma=es&Pais=ES&inirenfe=SI')
       browser.fill_in 'txtoUsuario', with: user
       browser.fill_in 'password', with: password
       browser.click_link('Entrar')
@@ -49,6 +69,20 @@ module RenfeRefundTickets
 
     def refund_tickets
       TicketRefunder.new.refund_past_tickets
+    end
+
+    def visit(browser, link)
+      tries ||= 3
+      RenfeRefundTickets.logger.info("[TicketRefunder] Tries:#{tries} Visiting: #{link}")
+      browser.visit(link)
+      sleep(0.5)
+    rescue Exception => e
+      if (tries -= 1).zero?
+        raise e
+      else
+        RenfeRefundTickets.logger_exception(e)
+        retry
+      end
     end
   end
 end

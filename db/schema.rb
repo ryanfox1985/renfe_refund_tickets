@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170517214023) do
+ActiveRecord::Schema.define(version: 20170602171318) do
 
   create_table "travels", force: :cascade do |t|
     t.string "pnr", null: false
@@ -18,10 +18,11 @@ ActiveRecord::Schema.define(version: 20170517214023) do
     t.string "origin"
     t.string "destination"
     t.date "departure_date"
-    t.datetime "refund_at"
-    t.boolean "refund_ok", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "tries", default: 0
+    t.datetime "last_try_refund_at"
+    t.boolean "eligible", default: false
     t.index ["pnr", "ticket_number"], name: "index_travels_on_pnr_and_ticket_number", unique: true
   end
 

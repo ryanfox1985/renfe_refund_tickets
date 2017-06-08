@@ -5,6 +5,8 @@ module RenfeRefundTickets
   class TicketRefunder
     include RenfeRefundTickets::Concerns::HasBrowser
 
+    MY_TICKETS_URL = 'https://venta.renfe.com/vol/selecIndemAuto.do'
+
     def refund_past_tickets
       RenfeRefundTickets.connect_database
       RenfeRefundTickets.login_to_renfe(@browser)
@@ -15,14 +17,20 @@ module RenfeRefundTickets
       end
 
       Travel.past_tickets_not_refunded.each do |travel|
-        refund_ok = false
+        new_attributes = {
+          last_try_refund_at: DateTime.now,
+          tries: travel.tries + 1,
+          eligible: false
+        }
+
         begin
-          refund_ok = refund_travel_process(travel)
+          new_attributes[:eligible] = refund_travel_process(travel)
         rescue Exception => e
           RenfeRefundTickets.logger_exception(e)
+          next
         end
 
-        travel.update_attributes(refund_at: DateTime.now, refund_ok: refund_ok)
+        travel.update_attributes(new_attributes)
       end
     end
 
@@ -41,21 +49,29 @@ module RenfeRefundTickets
       ''
     end
 
+    def fill_input(id, value)
+      @browser.fill_in id, with: value
+      sleep(0.8)
+      @browser.find("##{id}").send_keys(:return)
+      sleep(0.3)
+    end
+
     def refund_travel_process(travel)
-      RenfeRefundTickets.logger.info("[TicketRefunder] refund_ticket_process")
-      @browser.visit 'https://venta.renfe.com/vol/selecIndemAuto.do'
-
-      @browser.fill_in 'cdgoBillete', with: travel.ticket_number
-      @browser.fill_in 'ORIGEN', with: city_input(travel.origin)
-      @browser.fill_in 'DESTINO', with: city_input(travel.destination)
-
-      @browser.click_link('Buscar')
-
       begin
-        return @browser.find('#error').nil?
+        RenfeRefundTickets.logger.info("[TicketRefunder] refund_ticket_process: #{travel.inspect}")
+        RenfeRefundTickets.visit(@browser, MY_TICKETS_URL)
+        @browser.find('body').send_keys(:escape)
+        sleep(0.2)
+
+        fill_input('cdgoBillete', travel.ticket_number)
+        fill_input('ORIGEN', city_input(travel.origin))
+        fill_input('DESTINO', city_input(travel.destination))
+        @browser.click_link('Buscar')
+
+        @browser.body.include?('forma de pago')
       rescue Exception => e
         RenfeRefundTickets.logger_exception(e)
-        true
+        false
       end
     end
   end
