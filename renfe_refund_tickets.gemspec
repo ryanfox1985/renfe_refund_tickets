@@ -37,6 +37,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'standalone_migrations'
   spec.add_dependency 'sqlite3'
   spec.add_dependency 'activerecord'
+  spec.add_dependency 'mailgun-ruby'
   spec.add_development_dependency "pry"
   spec.add_development_dependency "bundler", "~> 1.14"
   spec.add_development_dependency "rake", "~> 10.0"

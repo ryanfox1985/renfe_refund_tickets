@@ -2,6 +2,7 @@ require 'renfe_refund_tickets/version'
 require 'renfe_refund_tickets/travel'
 require 'renfe_refund_tickets/ticket_creator'
 require 'renfe_refund_tickets/ticket_refunder'
+require 'renfe_refund_tickets/ticket_notifier'
 require 'renfe_refund_tickets/concerns/has_browser'
 require 'yaml'
 require 'capybara'
@@ -13,6 +14,10 @@ module RenfeRefundTickets
 
     def logger
       @logger ||= Logger.new(STDOUT)
+    end
+
+    def browser
+      @browser ||= RenfeRefundTickets.initialize_capybara
     end
 
     def logger_exception(e)
@@ -44,7 +49,7 @@ module RenfeRefundTickets
     end
 
     def initialize_capybara(driver = ENV['RENFE_DRIVER'])
-      return use_phantom if !driver || driver.to_s == 'phantom' 
+      return use_phantom if !driver || driver.to_s == 'phantom'
       use_selenium
     end
 
@@ -73,7 +78,7 @@ module RenfeRefundTickets
 
     def visit(browser, link)
       tries ||= 3
-      RenfeRefundTickets.logger.info("[TicketRefunder] Tries:#{tries} Visiting: #{link}")
+      RenfeRefundTickets.logger.info("[TicketRenfe] Tries:#{tries} Visiting: #{link}")
       browser.visit(link)
       sleep(0.5)
     rescue Exception => e

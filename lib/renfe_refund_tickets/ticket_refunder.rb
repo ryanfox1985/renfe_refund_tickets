@@ -31,23 +31,13 @@ module RenfeRefundTickets
         end
 
         travel.update_attributes(new_attributes)
+        if travel.eligible && RenfeRefundTickets::TicketNotifier.enabled?
+          TicketNotifier.new.notify(travel)
+        end
       end
     end
 
     private
-
-    def city_input(text)
-      split_char = if text.include?('-')
-        '-'
-      else
-        ' '
-      end
-
-      text.split(split_char).map(&:capitalize).join(split_char)
-    rescue Exception => e
-      RenfeRefundTickets.logger_exception(e)
-      ''
-    end
 
     def fill_input(id, value)
       @browser.fill_in id, with: value
@@ -64,8 +54,8 @@ module RenfeRefundTickets
         sleep(0.2)
 
         fill_input('cdgoBillete', travel.ticket_number)
-        fill_input('ORIGEN', city_input(travel.origin))
-        fill_input('DESTINO', city_input(travel.destination))
+        fill_input('ORIGEN', travel.origin_for_input)
+        fill_input('DESTINO', travel.destination_for_input)
         @browser.click_link('Buscar')
 
         @browser.body.include?('forma de pago')
