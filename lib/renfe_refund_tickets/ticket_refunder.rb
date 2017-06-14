@@ -58,6 +58,7 @@ module RenfeRefundTickets
         fill_input('DESTINO', travel.destination_for_input)
         @browser.click_link('Buscar')
 
+        @browser.save_screenshot(travel.screenshot_path, full: true)
         @browser.body.include?('forma de pago')
       rescue Exception => e
         RenfeRefundTickets.logger_exception(e)

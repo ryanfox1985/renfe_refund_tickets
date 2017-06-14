@@ -43,6 +43,10 @@ module RenfeRefundTickets
           """
       }
 
+      if File.exist?(travel.screenshot_path)
+        message_params[:attachment] = File.open(travel.screenshot_path, 'r')
+      end
+
       #mb_obj.add_attachment("./tron.jpg")
 
       # Send your message through the client

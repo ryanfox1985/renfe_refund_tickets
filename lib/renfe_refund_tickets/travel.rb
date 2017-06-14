@@ -28,5 +28,9 @@ module RenfeRefundTickets
     def destination_for_input
       city_for_input(destination)
     end
+
+    def screenshot_path
+      "tmp/#{ticket_number}.png"
+    end
   end
 end
