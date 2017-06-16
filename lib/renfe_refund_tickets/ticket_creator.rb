@@ -62,23 +62,29 @@ module RenfeRefundTickets
     end
 
     def complete_ticket_numbers(travels)
-      RenfeRefundTickets.logger.info("[TicketCreator] complete_ticket_numbers")
+      RenfeRefundTickets.logger.info('[TicketCreator] complete_ticket_numbers')
 
       raw_complete_travels = travels.map do |travel|
+        RenfeRefundTickets.logger.info("[TicketCreator] complete_ticket_number from #{travel.inspect}")
+
         begin
           RenfeRefundTickets.visit(@browser, MY_TICKETS_LIST_URL)
 
           @browser.find("input[value=\"#{travel[:pnr]}\"]").click
-          @browser.click_link(:Consultar)
+          @browser.visit("#{MY_TICKETS_LIST_URL}#piev2") #scroll down
+          sleep(0.1)
+
+          @browser.click_link('Consultar')
 
           element = @browser.find('td[headers="Código de Billete"]')
           travel.merge(ticket_number: element.text)
         rescue Exception => e
           RenfeRefundTickets.logger_exception(e)
+          nil
         end
       end
 
-      travels = raw_complete_travels.reject { |travel| travel[:ticket_number].nil? }
+      travels = raw_complete_travels.compact.reject { |travel| travel[:ticket_number].nil? }
 
       RenfeRefundTickets.logger.info("[TicketCreator] complete_ticket_numbers: #{travels}")
       travels
