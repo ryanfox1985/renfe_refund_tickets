@@ -4,7 +4,7 @@ module RenfeRefundTickets
   class Travel < ActiveRecord::Base
     scope :past_tickets_not_refunded, -> do
       where(eligible: false)
-        .where('tries < 6')
+        .where('tries < 10')
         .where('departure_date < ?', Date.today)
     end
 
@@ -16,7 +16,7 @@ module RenfeRefundTickets
       end
 
       text.split(split_char).map(&:capitalize).join(split_char)
-    rescue Exception => e
+    rescue StandardError => e
       RenfeRefundTickets.logger_exception(e)
       ''
     end

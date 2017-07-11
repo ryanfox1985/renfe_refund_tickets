@@ -31,6 +31,7 @@ module RenfeRefundTickets
         end
 
         travel.update_attributes(new_attributes)
+        take_snapshot(travel)
         if travel.eligible && RenfeRefundTickets::TicketNotifier.enabled?
           TicketNotifier.new.notify(travel)
         end
@@ -40,30 +41,32 @@ module RenfeRefundTickets
     private
 
     def fill_input(id, value)
+      @browser.find('body').send_keys(:escape)
+      sleep(0.3)
       @browser.fill_in id, with: value
       sleep(0.8)
       @browser.find("##{id}").send_keys(:return)
       sleep(0.3)
     end
 
+    def take_snapshot(travel)
+      @browser.save_screenshot(travel.screenshot_path, full: true)
+    rescue StandardError => e
+      RenfeRefundTickets.logger_exception(e)
+    end
+
     def refund_travel_process(travel)
-      begin
-        RenfeRefundTickets.logger.info("[TicketRefunder] refund_ticket_process: #{travel.inspect}")
-        RenfeRefundTickets.visit(@browser, MY_TICKETS_URL)
-        @browser.find('body').send_keys(:escape)
-        sleep(0.2)
+      RenfeRefundTickets.logger.info("[TicketRefunder] refund_ticket_process: #{travel.inspect}")
+      RenfeRefundTickets.visit(@browser, MY_TICKETS_URL)
 
-        fill_input('cdgoBillete', travel.ticket_number)
-        fill_input('ORIGEN', travel.origin_for_input)
-        fill_input('DESTINO', travel.destination_for_input)
-        @browser.click_link('Buscar')
-
-        @browser.save_screenshot(travel.screenshot_path, full: true)
-        @browser.body.include?('forma de pago')
-      rescue Exception => e
-        RenfeRefundTickets.logger_exception(e)
-        false
-      end
+      fill_input('cdgoBillete', travel.ticket_number)
+      fill_input('ORIGEN', travel.origin_for_input)
+      fill_input('DESTINO', travel.destination_for_input)
+      @browser.click_link('Buscar')
+      @browser.body.downcase.include?('forma de pago')
+    rescue StandardError => e
+      RenfeRefundTickets.logger_exception(e)
+      false
     end
   end
 end
